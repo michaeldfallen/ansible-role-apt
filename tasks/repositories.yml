@@ -1,18 +1,27 @@
 ---
 
+- name: Install keys.
+  apt_key:
+    keyserver: "{{ ('url' in item) | ternary(omit, item.keyserver | default('keyserver.ubuntu.com')) }}"
+    id: "{{ ('id' in item) | ternary(item.id, item) }}"
+    url: "{{ ('url' in item) | ternary(item.url, omit) }}"
+  with_items:
+    - "{{ apt_install_repositories | map(attribute='key') | list }}"
+  when: apt_install_repositories
+
 - name: Install repositories.
   apt_repository:
-    repo="{{ item }}"
-    update_cache=yes
+    repo: "{{ ('key' in item) | ternary(item.repo, item) }}"
+    update_cache: yes
   with_items:
     - "{{ apt_install_repositories }}"
   when: apt_install_repositories
 
 - name: Remove repositories.
   apt_repository:
-    repo="{{ item }}"
-    state=absent
-    update_cache=yes
+    repo: "{{ ('key' in item) | ternary(item.repo, item) }}"
+    state: absent
+    update_cache: yes
   with_items:
     - "{{ apt_remove_repositories }}"
   when: apt_remove_repositories
