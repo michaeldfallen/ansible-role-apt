@@ -6,7 +6,7 @@
     id: "{{ ('id' in item) | ternary(item.id, item) }}"
     url: "{{ ('url' in item) | ternary(item.url, omit) }}"
   with_items:
-    - "{{ apt_install_repositories | map(attribute='key') | list }}"
+    - "{{ apt_install_repositories | selectattr('key', 'defined') | map(attribute='key') | list }}"
   when: apt_install_repositories
 
 - name: Install repositories.
